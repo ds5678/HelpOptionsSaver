@@ -68,11 +68,28 @@ internal static class Program
 			// Wait for the process to exit
 			process.WaitForExit();
 
-			// Write the output to a file
-			if (!string.IsNullOrEmpty(output))
+			if (string.IsNullOrEmpty(output))
 			{
-				File.WriteAllText(outputPath, output);
+				return;
 			}
+
+			if (output.StartsWith("Options:\n"))
+			{
+				output = output.Substring("Options:\n".Length);
+			}
+			else if (output.StartsWith("Running il2cpp.exe in server GC mode.\n\nOptions:\n"))
+			{
+				output = output.Substring("Running il2cpp.exe in server GC mode.\n\nOptions:\n".Length);
+			}
+			else
+			{
+				return;
+			}
+
+			output = string.Join('\n', output.Split('\n', StringSplitOptions.TrimEntries).Order());
+
+			// Write the output to a file
+			File.WriteAllText(outputPath, output);
 		}
 	}
 }
